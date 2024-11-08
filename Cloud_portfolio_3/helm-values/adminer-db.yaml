@@ -1,0 +1,8 @@
+db:
+  root_pw: welkom123
+  mysql_db: mydb
+  mysql_user: noa
+  mysql_pw: welkom123
+
+
+

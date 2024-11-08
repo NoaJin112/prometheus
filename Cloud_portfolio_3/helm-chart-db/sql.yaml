@@ -1,0 +1,54 @@
+#https://medium.com/@midejoseph24/deploying-mysql-on-kubernetes-16758a42a746
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  namespace: adminer-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: mysql:latest
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Values.db.root_pw }}
+        - name: MYSQL_DATABASE
+          value: {{ .Values.db.mysql_db }}
+        - name: MYSQL_USER
+          value: {{ .Values.db.mysql_user }}
+        - name: MYSQL_password
+          value: {{ .Values.db.mysql_pw }}
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: adminer-db
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+

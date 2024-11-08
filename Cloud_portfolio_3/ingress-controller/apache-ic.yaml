@@ -1,0 +1,115 @@
+--- #Samengewerkt met Bodhi Kiewiet
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-deployment-1
+  namespace: apache-ingress
+  labels:
+    app: apache-server-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apache-server-1
+  template:
+    metadata:
+      labels:
+        app: apache-server-1
+    spec:
+      containers:
+        - name: apache-container-1
+          image: httpd:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: apache-config-volume-1
+              mountPath: /usr/local/apache2/htdocs/index.html
+              subPath: index.html
+      volumes:
+        - name: apache-config-volume-1
+          configMap:
+            name: apache-config-1
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apache-config-1
+  namespace: apache-ingress
+data:
+  index.html: |
+    <html>
+    <h1> This is Apache webserver 1</h1>
+    </html>
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-deployment-2
+  namespace: apache-ingress
+  labels:
+    app: apache-server-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apache-server-2
+  template:
+    metadata:
+      labels:
+        app: apache-server-2
+    spec:
+      containers:
+        - name: apache-container-2
+          image: httpd:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: apache-config-volume-2
+              mountPath: /usr/local/apache2/htdocs/index.html
+              subPath: index.html
+      volumes:
+        - name: apache-config-volume-2
+          configMap:
+            name: apache-config-2
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apache-config-2
+  namespace: apache-ingress
+data:
+  index.html: |
+    <html>
+    <h1> This is Apache webserver 2</h1>
+    </html>
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache-service-1
+  namespace: apache-ingress
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: apache-server-1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache-service-2
+  namespace: apache-ingress
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: apache-server-2

@@ -1,0 +1,15 @@
+#helm install ./apache-chart --namespace apache-server
+#kubectl get all -n apache-server
+#kubectl delete service apache-server --namespace apache-server
+#kubectl create ns apache-server
+#Disable swap when you restart
+app:
+  name: apache
+
+container:
+  namespace: apache-server
+
+nodeport:
+  port: 80
+  targetport: 80
+  nport: 30003
